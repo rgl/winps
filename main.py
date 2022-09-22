@@ -3,8 +3,10 @@
 import argparse
 import base64
 import logging
+import os
 import sys
 import textwrap
+import typing
 from pypsrp.client import WSMan, Client
 from pypsrp.shell import WinRS, Process, SignalCode, CommandState
 from pypsrp._utils import to_unicode
@@ -17,9 +19,17 @@ def split_lines(buffer, encoding):
         lines.append(line.rstrip())
     return b'', lines
 
-def execute_process(conn, cmd, args):
+def execute_process(conn: WSMan, env: typing.List[str], cmd: str, args: typing.List[str]):
     encoding = '437'
-    with WinRS(conn, no_profile=False) as shell:
+    environment = {}
+    for e in env:
+        parts = e.split('=', 2)
+        key = parts[0]
+        value = parts[1] if len(parts) > 1 else os.getenv(key, '')
+        environment[key] = value
+    if len(environment) == 0:
+        environment = None
+    with WinRS(conn, environment=environment, no_profile=False) as shell:
         process = Process(shell, cmd, args, no_shell=True)
         process.begin_invoke()
         while not process.state == CommandState.DONE:
@@ -49,7 +59,7 @@ def execute_main(args):
             encryption=args.encryption,
             username=args.username,
             password=args.password) as conn:
-        return execute_process(conn, "PowerShell.exe", [
+        return execute_process(conn, args.env, "PowerShell.exe", [
             "-NoLogo",
             "-NonInteractive",
             "-ExecutionPolicy", "Bypass",
@@ -102,6 +112,11 @@ def main():
         '--password',
         default='vagrant',
         help='password.')
+    execute_parser.add_argument(
+        '--env',
+        action='append',
+        default=[],
+        help='environment variables.')
     execute_parser.add_argument(
         '--script',
         default=textwrap.dedent('''\
