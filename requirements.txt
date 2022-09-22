@@ -1,0 +1,1 @@
+pypsrp[credssp]==0.8.1  # see https://pypi.org/project/pypsrp/
