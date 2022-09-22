@@ -40,47 +40,15 @@ def execute_process(conn, cmd, args):
         return exit_code
 
 def execute_main(args):
-    with WSMan(server=args.host, port=args.port, ssl=args.ssl, auth=args.auth, encryption=args.encryption, username=args.username, password=args.password) as conn:
-        script = textwrap.dedent('''\
-            $FormatEnumerationLimit = -1
-
-            function Write-Title($title) {
-                Write-Output "`n#`n# $title`n#`n"
-            }
-
-            Write-Title 'Current user rights'
-            whoami /all
-
-            Write-Title 'UAC remote settings'
-            # dump the UAC remote settings.
-            # 0=This value builds a filtered token. It's the default value. The administrator credentials are removed.
-            # 1=This value builds an elevated token.
-            # see https://learn.microsoft.com/en-US/troubleshoot/windows-server/windows-security/user-account-control-and-remote-restriction
-            $localAccountTokenFilterPolicy = (
-                    Get-ItemProperty `
-                        HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System `
-                        -Name LocalAccountTokenFilterPolicy
-                ).LocalAccountTokenFilterPolicy
-            Write-Output "LocalAccountTokenFilterPolicy=$localAccountTokenFilterPolicy"
-
-            Write-Title 'Environment variables'
-            dir env: `
-                | Sort-Object -Property Name `
-                | Format-Table -AutoSize `
-                | Out-String -Stream -Width ([int]::MaxValue) `
-                | ForEach-Object {$_.TrimEnd()}
-
-            # show that we can stream lines in realtime.
-            Write-Title 'Slowly write lines'
-            for ($i = 3; $i -gt 0; --$i) {
-                Write-Output "T-$i"
-                Start-Sleep -Seconds 1
-            }
-
-            # throw an error to see how they appear.
-            Write-Title 'Throw error'
-            throw "ops"
-        ''')
+    script = sys.stdin.read() if args.script == '-' else args.script
+    with WSMan(
+            server=args.host,
+            port=args.port,
+            ssl=args.ssl,
+            auth=args.auth,
+            encryption=args.encryption,
+            username=args.username,
+            password=args.password) as conn:
         return execute_process(conn, "PowerShell.exe", [
             "-NoLogo",
             "-NonInteractive",
@@ -103,7 +71,7 @@ def main():
         action='count',
         help='verbosity level. specify multiple to increase logging.')
     subparsers = parser.add_subparsers(help='sub-command help')
-    execute_parser = subparsers.add_parser('execute', help='execute remote powershell command')
+    execute_parser = subparsers.add_parser('execute', help='execute remote powershell script')
     execute_parser.add_argument(
         '--host',
         default='windows.example.com',
@@ -134,6 +102,49 @@ def main():
         '--password',
         default='vagrant',
         help='password.')
+    execute_parser.add_argument(
+        '--script',
+        default=textwrap.dedent('''\
+            $FormatEnumerationLimit = -1
+
+            function Write-Title($title) {
+                Write-Output "`n#`n# $title`n#`n"
+            }
+
+            Write-Title 'User rights'
+            whoami /all
+
+            Write-Title 'UAC remote settings'
+            # dump the UAC remote settings.
+            # 0=This value builds a filtered token. It's the default value. The administrator credentials are removed.
+            # 1=This value builds an elevated token.
+            # see https://learn.microsoft.com/en-US/troubleshoot/windows-server/windows-security/user-account-control-and-remote-restriction
+            $localAccountTokenFilterPolicy = (
+                    Get-ItemProperty `
+                        HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System `
+                        -Name LocalAccountTokenFilterPolicy
+                ).LocalAccountTokenFilterPolicy
+            Write-Output "LocalAccountTokenFilterPolicy=$localAccountTokenFilterPolicy"
+
+            Write-Title 'Environment variables'
+            dir env: `
+                | Sort-Object -Property Name `
+                | Format-Table -AutoSize `
+                | Out-String -Stream -Width ([int]::MaxValue) `
+                | ForEach-Object {$_.TrimEnd()}
+
+            # show that we can stream lines in realtime.
+            Write-Title 'Slowly write lines'
+            for ($i = 3; $i -gt 0; --$i) {
+                Write-Output "T-$i"
+                Start-Sleep -Seconds 1
+            }
+
+            # # throw an error to see how they appear.
+            # Write-Title 'Throw error'
+            # throw "ops"
+            '''),
+        help='powershell script to execute or - to read it from stdin.')
     execute_parser.set_defaults(sub_command=execute_main)
     args = parser.parse_args()
 
