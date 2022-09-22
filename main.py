@@ -61,6 +61,7 @@ def execute_main(args):
             password=args.password) as conn:
         return execute_process(conn, args.env, "PowerShell.exe", [
             "-NoLogo",
+            "-NoProfile",
             "-NonInteractive",
             "-ExecutionPolicy", "Bypass",
             "-EncodedCommand",
