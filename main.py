@@ -64,6 +64,7 @@ def execute_main(args):
             "-NoProfile",
             "-NonInteractive",
             "-ExecutionPolicy", "Bypass",
+            "-OutputFormat", "Text",
             "-EncodedCommand",
             base64.b64encode(script.encode('utf-16le')).decode('ascii')])
 
