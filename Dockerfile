@@ -9,6 +9,7 @@ apt-get update
 apt-get install -y --no-install-recommends \
     xvfb \
     xauth \
+    xdotool \
     freerdp2-x11 \
     scrot \
     iproute2 \
@@ -28,4 +29,5 @@ EOF
 
 # install binaries.
 COPY --chmod=0755 screenshot.sh /usr/local/bin/screenshot
+COPY --chmod=0755 keyboard.sh /usr/local/bin/keyboard
 COPY --chmod=0755 main.py /usr/local/bin/winps

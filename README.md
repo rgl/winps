@@ -7,6 +7,7 @@ This uses:
 * [pypsrp library](https://pypi.org/project/pypsrp/)
 * [xfreerdp application](https://www.freerdp.com/)
 * [scrot application](https://github.com/resurrecting-open-source-projects/scrot)
+* [xdotool application](https://github.com/jordansissel/xdotool)
 
 # Usage
 
@@ -78,4 +79,16 @@ Take a screenshoot:
 
 ```bash
 docker exec winps screenshot /host/screenshot.png
+```
+
+Simulate the `Windows` (aka `Super`) keypress:
+
+```bash
+docker exec winps keyboard key Super_L
+```
+
+Take a screenshoot:
+
+```bash
+docker exec winps screenshot /host/screenshot-keypress.png
 ```
