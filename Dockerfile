@@ -7,6 +7,9 @@ FROM debian:11-slim
 RUN <<EOF
 apt-get update
 apt-get install -y --no-install-recommends \
+    xvfb \
+    xauth \
+    freerdp2-x11 \
     iproute2 \
     procps \
     wget \

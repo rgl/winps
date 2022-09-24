@@ -5,6 +5,7 @@ Remote execute a command in a Windows machine using WinRM/WinRS.
 This uses:
 
 * [pypsrp library](https://pypi.org/project/pypsrp/)
+* [xfreerdp application](https://www.freerdp.com/)
 
 # Usage
 
@@ -39,4 +40,30 @@ docker run --rm -i \
     --username "$WINPS_USERNAME" \
     --password "$WINPS_PASSWORD" \
     --script 'whoami.exe /all'
+```
+
+Start an headless RDP session:
+
+```bash
+docker run --rm -i \
+    --name winps \
+    --add-host "$WINPS_HOST:$WINPS_HOST_IP" \
+    --env WINPS_HOST \
+    --env WINPS_USERNAME \
+    --env WINPS_PASSWORD \
+    winps \
+    bash <<'EOF'
+set -euo pipefail
+xvfb-run \
+    "--server-args=-screen 0 1024x768x24" \
+    xfreerdp \
+        /log-level:WARN \
+        /cert:ignore \
+        "/v:$WINPS_HOST" \
+        "/u:$WINPS_USERNAME" \
+        "/p:$WINPS_PASSWORD" \
+        /f \
+        /dynamic-resolution \
+        +credentials-delegation
+EOF
 ```
