@@ -6,6 +6,7 @@ This uses:
 
 * [pypsrp library](https://pypi.org/project/pypsrp/)
 * [xfreerdp application](https://www.freerdp.com/)
+* [scrot application](https://github.com/resurrecting-open-source-projects/scrot)
 
 # Usage
 
@@ -48,6 +49,7 @@ Start an headless RDP session:
 docker run --rm -i \
     --name winps \
     --add-host "$WINPS_HOST:$WINPS_HOST_IP" \
+    --volume "$PWD:/host:rw" \
     --env WINPS_HOST \
     --env WINPS_USERNAME \
     --env WINPS_PASSWORD \
@@ -66,4 +68,14 @@ xvfb-run \
         /dynamic-resolution \
         +credentials-delegation
 EOF
+```
+
+Open another shell.
+
+Set the environment variables as done initially.
+
+Take a screenshoot:
+
+```bash
+docker exec winps screenshot /host/screenshot.png
 ```

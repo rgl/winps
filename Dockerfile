@@ -10,6 +10,7 @@ apt-get install -y --no-install-recommends \
     xvfb \
     xauth \
     freerdp2-x11 \
+    scrot \
     iproute2 \
     procps \
     wget \
@@ -26,4 +27,5 @@ python3 -m pip install -r requirements.txt
 EOF
 
 # install binaries.
+COPY --chmod=0755 screenshot.sh /usr/local/bin/screenshot
 COPY --chmod=0755 main.py /usr/local/bin/winps
