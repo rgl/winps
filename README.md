@@ -134,3 +134,38 @@ Take a screenshoot:
 ```bash
 docker exec winps screenshot /host/screenshot-keypress.png
 ```
+
+Logoff all the RDP sessions:
+
+```bash
+docker run --rm -i \
+    --add-host "$WINPS_HOST:$WINPS_HOST_IP" \
+    winps \
+    winps \
+    execute \
+    --host "$WINPS_HOST" \
+    --username "$WINPS_USERNAME" \
+    --password "$WINPS_PASSWORD" \
+    --env WINPS_USERNAME \
+    --script - <<'EOF'
+query.exe user | ForEach-Object {
+    # example query.exe user output:
+    #  USERNAME              SESSIONNAME        ID  STATE   IDLE TIME  LOGON TIME
+    #  john.doe              rdp-tcp#0           4  Active          9  9/24/2022 12:29 PM
+    if ($_ -match '^\s*(?<username>.+?)\s+(?<sessionname>.+?)\s+(?<id>\d+?)\s+') {
+        New-Object PSObject -Property @{
+            Username = $Matches['username']
+            SessionName = $Matches['sessionname']
+            SessionId = $Matches['id']
+        }
+    }
+} `
+| Where-Object {
+    $_.SessionName -like 'rdp-*'
+} `
+| ForEach-Object {
+    Write-Host "Logging off $($_.Username)..."
+    logoff.exe $_.SessionId
+}
+EOF
+```
