@@ -1,6 +1,6 @@
 # About
 
-Remote execute a command in a Windows machine using WinRM/WinRS.
+Remote execute a command in a Windows machine using WinRM/WinRS/RDP.
 
 This uses:
 
@@ -79,6 +79,48 @@ Take a screenshoot:
 
 ```bash
 docker exec winps screenshot /host/screenshot.png
+```
+
+Run the calculator in the interactive desktop:
+
+```bash
+docker run --rm -i \
+    --add-host "$WINPS_HOST:$WINPS_HOST_IP" \
+    --env WINPS_USERNAME \
+    winps \
+    winps \
+    execute \
+    --host "$WINPS_HOST" \
+    --username "$WINPS_USERNAME" \
+    --password "$WINPS_PASSWORD" \
+    --env WINPS_USERNAME \
+    --script - <<'EOF'
+$taskName = "winps-$(New-Guid)"
+Register-ScheduledTask `
+    -TaskName $taskName `
+    -Principal (
+        New-ScheduledTaskPrincipal `
+            -UserId $env:WINPS_USERNAME `
+            -LogonType Interactive `
+            -RunLevel Highest
+    ) `
+    -Action (
+        New-ScheduledTaskAction `
+            -Execute win32calc.exe
+    ) `
+    | Out-Null
+Start-ScheduledTask `
+    -TaskName $taskName
+Unregister-ScheduledTask `
+    -TaskName $taskName `
+    -Confirm:$false
+EOF
+```
+
+Take a screenshoot:
+
+```bash
+docker exec winps screenshot /host/screenshot-calculator.png
 ```
 
 Simulate the `Windows` (aka `Super`) keypress:
