@@ -1,10 +1,12 @@
-#syntax=docker/dockerfile:1.4
+#syntax=docker/dockerfile:1.6
 
-# debian 11 (bullseye).
-FROM debian:11-slim
+# debian 12 (bookworm).
+FROM debian:12-slim
 
 # install dependencies.
 RUN <<EOF
+#!/bin/bash
+set -euxo pipefail
 apt-get update
 apt-get install -y --no-install-recommends \
     xvfb \
@@ -24,7 +26,9 @@ EOF
 # install dependencies.
 COPY requirements.txt .
 RUN <<EOF
-python3 -m pip install -r requirements.txt
+#!/bin/bash
+set -euxo pipefail
+python3 -m pip install --break-system-packages -r requirements.txt
 EOF
 
 # install binaries.
