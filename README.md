@@ -75,7 +75,7 @@ Open another shell.
 
 Set the environment variables as done initially.
 
-Take a screenshoot:
+Take a screenshot:
 
 ```bash
 docker exec winps screenshot /host/screenshot.png
@@ -117,7 +117,7 @@ Unregister-ScheduledTask `
 EOF
 ```
 
-Take a screenshoot:
+Take a screenshot:
 
 ```bash
 docker exec winps screenshot /host/screenshot-calculator.png
@@ -129,7 +129,7 @@ Simulate the `Windows` (aka `Super`) keypress:
 docker exec winps keyboard key Super_L
 ```
 
-Take a screenshoot:
+Take a screenshot:
 
 ```bash
 docker exec winps screenshot /host/screenshot-keypress.png
