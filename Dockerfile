@@ -1,7 +1,7 @@
-# syntax=docker/dockerfile:1.15
+# syntax=docker/dockerfile:1.27
 
-# debian 12 (bookworm).
-FROM debian:12-slim
+# debian 13 (trixie).
+FROM debian:13-slim
 
 # install dependencies.
 RUN <<EOF
@@ -12,7 +12,7 @@ apt-get install -y --no-install-recommends \
     xvfb \
     xauth \
     xdotool \
-    freerdp2-x11 \
+    freerdp3-x11 \
     scrot \
     iproute2 \
     procps \

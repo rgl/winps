@@ -59,7 +59,7 @@ docker run --rm -i \
 set -euo pipefail
 xvfb-run \
     "--server-args=-screen 0 1024x768x24" \
-    xfreerdp \
+    xfreerdp3 \
         /log-level:WARN \
         /cert:ignore \
         "/v:$WINPS_HOST" \
