@@ -138,7 +138,7 @@ def main():
             # see https://learn.microsoft.com/en-US/troubleshoot/windows-server/windows-security/user-account-control-and-remote-restriction
             $localAccountTokenFilterPolicy = (
                     Get-ItemProperty `
-                        HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System `
+                        HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System `
                         -Name LocalAccountTokenFilterPolicy
                 ).LocalAccountTokenFilterPolicy
             Write-Output "LocalAccountTokenFilterPolicy=$localAccountTokenFilterPolicy"
